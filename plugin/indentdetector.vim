@@ -11,7 +11,7 @@ let g:loaded_indentdetector = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-command! -nargs=+ Indentdetector :call indentdetector#hook(<f-args>)
+command! -nargs=* Indentdetector :call indentdetector#hook(<f-args>)
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

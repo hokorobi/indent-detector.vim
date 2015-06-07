@@ -44,7 +44,9 @@ function! s:echo(str, hlgroup, level) abort
 endfunction
 
 " echolevel: 0 - none; 1 - error; 2 - warnning; 3 - info (all)
-function! indentdetector#hook(autoadjust, echolevel) abort
+" a1: autoadjust
+" a2: echolevel
+function! indentdetector#hook(...) abort
 	if &readonly != 0
 		return
 	endif
@@ -52,16 +54,18 @@ function! indentdetector#hook(autoadjust, echolevel) abort
 	let ErrorMsg   = 1
 	let WarningMsg = 2
 	let InfoMsg    = 3
+	let autoadjust = get(a:, '1', 1)
+	let echolevel  = get(a:, '2', 3)
 
 	let rst = s:detect()
 
 	if rst ==# 'mixed'
-		call s:echo('mixed indent', ErrorMsg, a:echolevel)
+		call s:echo('mixed indent', ErrorMsg, echolevel)
 		return
 	endif
 
 	if rst ==# 'tab'
-		if a:autoadjust
+		if autoadjust
 			setlocal noexpandtab nosmarttab
 		endif
 		return
@@ -73,14 +77,14 @@ function! indentdetector#hook(autoadjust, echolevel) abort
 
 	" space
 	if rst[8] ==# '>' "too many
-		call s:echo('too many leading spaces here.', WarningMsg, a:echolevel)
+		call s:echo('too many leading spaces here.', WarningMsg, echolevel)
 		return
 	endif
 
-	if a:autoadjust
+	if autoadjust
 		let n = rst[8]
 		exec 'setlocal expandtab smarttab tabstop='.n.' shiftwidth='.n.' softtabstop='.n
 	endif
-	call s:echo('indent: '.rst, InfoMsg, a:echolevel)
+	call s:echo('indent: '.rst, InfoMsg, echolevel)
 endfunction
 
