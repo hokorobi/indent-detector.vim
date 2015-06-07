@@ -10,13 +10,12 @@ endfunction
 function! s:detect() abort
 	let leadtab = s:search_nearby('^\t')
 	let leadspace = s:search_nearby('^ ')
+
 	if leadtab + leadspace >= 2 || s:search_nearby('^\(\t\+ \| \+\t\)') > 0
 		return 'mixed'
 	elseif leadtab + leadspace == 0
 		return 'default'
-	endif
-
-	if leadtab
+	elseif leadtab
 		return 'tab'
 	endif
 
@@ -38,7 +37,8 @@ function! s:echo(str, hlgroup, level) abort
 		return
 	endif
 
-	exec 'echohl '.a:hlgroup
+	let hlgroup = ['', 'ErrorMsg', 'WarningMsg', 'None']
+	exec 'echohl '.hlgroup[a:hlgroup]
 	echomsg 'indentedetector: '.a:str
 	echohl None
 endfunction
@@ -49,10 +49,14 @@ function! indentdetector#hook(autoadjust, echolevel) abort
 		return
 	endif
 
+	let ErrorMsg   = 1
+	let WarningMsg = 2
+	let InfoMsg    = 3
+
 	let rst = s:detect()
 
 	if rst ==# 'mixed'
-		call s:echo('mixed indent', 'ErrorMsg', a:echolevel)
+		call s:echo('mixed indent', ErrorMsg, a:echolevel)
 		return
 	endif
 
@@ -69,7 +73,7 @@ function! indentdetector#hook(autoadjust, echolevel) abort
 
 	" space
 	if rst[8] ==# '>' "too many
-		call s:echo('too many leading spaces here.', 'None', a:echolevel)
+		call s:echo('too many leading spaces here.', WarningMsg, a:echolevel)
 		return
 	endif
 
@@ -77,6 +81,6 @@ function! indentdetector#hook(autoadjust, echolevel) abort
 		let n = rst[8]
 		exec 'setlocal expandtab smarttab tabstop='.n.' shiftwidth='.n.' softtabstop='.n
 	endif
-	call s:echo('indent: '.rst, 'WarningMsg', a:echolevel)
+	call s:echo('indent: '.rst, InfoMsg, a:echolevel)
 endfunction
 
